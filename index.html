@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Calculadora Precio Impresión 3D</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f1f1;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      background: white;
+      padding: 20px;
+      max-width: 450px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #cccccc;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      margin-bottom: 10px;
+      height: 35px;
+      font-size: 16px;
+      padding: 5px;
+    }
+
+    button {
+      width: 100%;
+      background: #2196f3;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1976d2;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 28px;
+    }
+  </style>
+
+</head>
+<body>
+
+  <h1>Calculadora de Precio Impresión 3D</h1>
+
+  <div class="container">
+
+    <label>Filamento (gramos):</label>
+    <input type="number" id="filamento" min="0" />
+
+    <label>Horas de impresión:</label>
+    <input type="number" id="horas" min="0" />
+
+    <label>Tandas (cantidad de impresiones):</label>
+    <input type="number" id="tandas" min="1" value="1" />
+
+    <label>Llavero:</label>
+    <select id="llavero">
+      <option value="no">No</option>
+      <option value="si">Sí</option>
+    </select>
+
+    <div id="cantidadLlaveroWrap" style="display:none;">
+      <label>Cantidad de llaveros:</label>
+      <input type="number" id="cantidadLlavero" min="0" />
+    </div>
+
+    <label>Mano de obra (horas):</label>
+    <input type="number" id="manoObra" min="0" />
+
+    <label>Tipo de cliente:</label>
+    <select id="cliente">
+      <option value="cliente">Cliente (0%)</option>
+      <option value="amigo">Amigo (30%)</option>
+      <option value="conocido">Conocido (15%)</option>
+    </select>
+
+    <button onclick="calcular()">Calcular precio</button>
+
+    <h2 id="resultado">$0</h2>
+
+  </div>
+
+  <script>
+    document.getElementById("llavero").addEventListener("change", () => {
+      const mostrar = document.getElementById("llavero").value === "si";
+      document.getElementById("cantidadLlaveroWrap").style.display = mostrar ? "block" : "none";
+    });
+
+    function calcular() {
+
+      let filamento = Number(document.getElementById("filamento").value);
+      let horas = Number(document.getElementById("horas").value);
+      let tandas = Number(document.getElementById("tandas").value);
+      let manoObra = Number(document.getElementById("manoObra").value);
+
+      let llavero = document.getElementById("llavero").value;
+      let cantidadLlavero = Number(document.getElementById("cantidadLlavero").value);
+
+      // COSTOS UNITARIOS
+      const COSTO_FILAMENTO = 20;
+      const COSTO_HORA_IMPRESION = 30;
+      const COSTO_LLAVERO = 200;
+      const COSTO_MANO_OBRA = 10000;
+
+      // CÁLCULOS BASE
+      let costoFilamento = filamento * COSTO_FILAMENTO * tandas;
+      let costoImpresion = horas * COSTO_HORA_IMPRESION * tandas;
+      let costoLlaveros = llavero === "si" ? cantidadLlavero * COSTO_LLAVERO * tandas : 0;
+
+      // **SUBTOTAL QUE SÍ SE MULTIPLICA POR 3.2**
+      let subtotal = costoFilamento + costoImpresion + costoLlaveros;
+
+      // MULTIPLICADOR GENERAL
+      let totalMultiplicado = subtotal * 3.2;
+
+      // **MANO DE OBRA SE SUMA DESPUÉS DEL MULTIPLICADOR**
+      let costoManoObra = manoObra * COSTO_MANO_OBRA;
+
+      let totalConManoObra = totalMultiplicado + costoManoObra;
+
+      // DESCUENTO SEGÚN TIPO DE CLIENTE
+      let tipo = document.getElementById("cliente").value;
+      let descuento = 0;
+
+      if (tipo === "amigo") descuento = 0.30;
+      else if (tipo === "conocido") descuento = 0.15;
+
+      let totalFinal = totalConManoObra - (totalConManoObra * descuento);
+
+      document.getElementById("resultado").innerText = "$ " + totalFinal.toFixed(2);
+    }
+  </script>
+
+</body>
+</html>
